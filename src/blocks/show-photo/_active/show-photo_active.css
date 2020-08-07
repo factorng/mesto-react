@@ -1,0 +1,7 @@
+.show-photo_active {
+  opacity: 1;
+  visibility: visible;
+  -webkit-transition: opacity .5s linear;
+  -o-transition: opacity .5s linear;
+  transition: opacity .5s linear;
+}

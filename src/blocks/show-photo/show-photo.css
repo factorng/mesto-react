@@ -1,0 +1,7 @@
+@import url(./__window/show-photo__window.css);
+@import url(./__image/show-photo__image.css);
+@import url(./__button-close/show-photo__button-close.css);
+@import url(./__title/show-photo__title.css);
+
+.show-photo {
+}
