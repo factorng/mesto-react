@@ -1,5 +1,5 @@
 import React from "react";
-import "./Spinner.css";
+import "../blocks/spinner/Spinner.css";
 
 function Spinner() {
   return <div className="Spinner"></div>;
