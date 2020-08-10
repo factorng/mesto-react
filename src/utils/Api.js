@@ -1,3 +1,5 @@
+import apiSettings from './utils.js'
+
 export class Api {
   constructor(settings) {
     this.baseUrl = settings.url;
@@ -128,6 +130,6 @@ export class Api {
   }
 }
 
-const api = new Api({url: 'https://mesto.nomoreparties.co/v1/cohort-13', auth: 'bb89f9dd-ceae-40c2-90a7-950f4a7ba36d'});
+const api = new Api(apiSettings);
 
 export default api;
