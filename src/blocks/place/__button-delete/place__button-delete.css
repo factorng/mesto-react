@@ -1,3 +1,5 @@
+@import url('./_hidden/place__button-delete_hidden.css');
+
 .place__button-delete {
   position: absolute;
   top: 20px;

@@ -1,24 +1,42 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
-import PopupWithForm from "./PopupWithForm";
 import ImagePopup from "./ImagePopup";
+import api from '../utils/Api';
+import {CurrentUserContext} from '../contexts/CurrentUserContext';
+import EditProfilePopup from './EditProfilePopup';
+import EditAvatarPopup from './EditAvatarPopup';
+import AddPlacePopup from './AddPlacePopup';
+import Spinner from './Spinner';
 
 
 function App() {
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(
+  const [currentUser, setCurrentUser] = useState({});
+  const [cards, setCards] = useState([]);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(
     false
   );
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(
     false
   );
-  const [selectedCard, setSelectedCard] = React.useState({
+  const [selectedCard, setSelectedCard] = useState({
     isOpen: false,
     name: "",
     link: "",
   });
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  useEffect(() => {
+    Promise.all([api.getUserInfo(), api.getInitialCards()])
+      .then(([userData, cards]) => {
+        setCards(cards);
+        setCurrentUser(userData);
+      })
+      .then(() => setIsLoading(false))
+      .catch(err => console.log(err));
+  }, []);
   
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -29,7 +47,7 @@ function App() {
   function handleAddPlaceClick() {
     setIsAddPlacePopupOpen(true);
   }
-  function handleCardClick({ name, link }) {
+  function handleCardClick(name, link ) {
     setSelectedCard({
       isOpen: true,
       name: name,
@@ -48,127 +66,22 @@ function App() {
   }
 
   return (
-    <>
+    <CurrentUserContext.Provider value={{user: currentUser, cards: cards, setCards, setCurrentUser}}>
       <Header />
-      <Main
+      {isLoading ? (<Spinner/>) :
+        <Main
         onEditProfile={handleEditProfileClick}
         onAddPlace={handleAddPlaceClick}
         onEditAvatar={handleEditAvatarClick}
         onCardClick={handleCardClick}
-      />
+        />
+      }
       <Footer />
-      <PopupWithForm
-        isOpen={isEditProfilePopupOpen}
-        className="edit-profile"
-        formName="edit-profile__form"
-        title="Редактировать профиль"
-        buttonText="Сохранить"
-        onClose={closeAllPopups}
-        children={
-          <>
-            <div className="popup__input-field">
-              <input
-                id="input-name"
-                className="popup__input edit-profile__input-name"
-                type="text"
-                name="name"
-                defaultValue=""
-                placeholder="Введите имя"
-                minLength={2}
-                maxLength={40}
-                pattern="^[A-Za-zА-ЯЁа-яё -]+$"
-                required
-              />
-              <span id="input-name-error" className="popup__input-error" />
-            </div>
-            <div className="popup__input-field">
-              <input
-                id="input-occupation"
-                className="popup__input edit-profile__input-occupation"
-                type="text"
-                name="occupation"
-                defaultValue=""
-                placeholder="Род занятий"
-                minLength={2}
-                maxLength={200}
-                required
-              />
-              <span
-                id="input-occupation-error"
-                className="popup__input-error"
-              />
-            </div>
-          </>
-        }
-      />
-      <PopupWithForm
-        isOpen={isAddPlacePopupOpen}
-        className="add-card"
-        formName="add-card__form"
-        title="Новое место"
-        buttonText="Создать"
-        onClose={closeAllPopups}
-        children={
-          <>
-            <div className="popup__input-field">
-              <input
-                className="popup__input add-card__input-name"
-                type="text"
-                id="input-place-name"
-                name="name"
-                defaultValue=""
-                placeholder="Название"
-                minLength={2}
-                maxLength={30}
-                required
-              />
-              <span
-                id="input-place-name-error"
-                className="popup__input-error"
-              />
-            </div>
-            <div className="popup__input-field">
-              <input
-                className="popup__input add-card__input-link"
-                type="url"
-                id="input-place-link"
-                name="link"
-                defaultValue=""
-                placeholder="Ссылка на картинку"
-                required
-              />
-              <span
-                id="input-place-link-error"
-                className="popup__input-error"
-              />
-            </div>
-          </>
-        }
-      />
-      <PopupWithForm
-        isOpen={isEditAvatarPopupOpen}
-        className="change-avatar"
-        formName="change-avatar__form"
-        title="Обновить аватар"
-        buttonText="Сохранить"
-        onClose={closeAllPopups}
-        children={
-          <div className="popup__input-field">
-            <input
-              className="popup__input change-avatar__input-link"
-              type="url"
-              id="change-avatar__input-link"
-              name="link"
-              defaultValue=""
-              placeholder="Ссылка на картинку"
-              required
-            />
-            <span id="change-avatar__input-link-error" className="popup__input-error" />
-          </div>
-        }
-      />
+      <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} />
+      <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups}/>
+      <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups}/>
       <ImagePopup {...selectedCard} onClose={closeAllPopups} />
-    </>
+    </CurrentUserContext.Provider>
   );
 }
 
