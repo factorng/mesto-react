@@ -1,40 +1,42 @@
 import React from "react";
 import PopupWithForm from "./PopupWithForm";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import api from '../utils/Api';
 
-function EditProfilePopup({isOpen, onClose}) {
-  const user = React.useContext(CurrentUserContext).user;
-  const setUser = React.useContext(CurrentUserContext).setCurrentUser;
+function EditProfilePopup({isOpen, onClose, onUpdateUser, isButtonProgress}) {
+  const currentUser = React.useContext(CurrentUserContext);
   const [name, setName] = React.useState("");
   const [occupation, setOccupation] = React.useState("");
-  const [buttonText, setButtonText ]= React.useState('Сохранить');
 
   React.useEffect(() => {
-    setName(user.name);
-    setOccupation(user.about);
-  }, [user]);
+    setName(currentUser.name);
+    setOccupation(currentUser.about);
+  }, [currentUser]);
 
   function handleSubmit(e) {
+    // Запрещаем браузеру переходить по адресу формы
     e.preventDefault();
-    setButtonText('Сохранение...');
-    api.updateUserProfile(name, occupation)
-        .then((res) => {
-            setUser(res);
-            onClose();
-            setButtonText('Сохранить');
-        })
-        .catch(err => console.log(err));
+  
+    // Передаём значения управляемых компонентов во внешний обработчик
+    onUpdateUser({
+      name,
+      occupation,
+    });
+  }
+
+  function handleClose() {
+    onClose();
+    setName(currentUser.name);
+    setOccupation(currentUser.about);
   }
 
   return (
     <PopupWithForm
       isOpen={isOpen}
-      onClose={onClose}
-      Submit={handleSubmit}
+      onClose={handleClose}
       title="Редактировать профиль"
-      buttonText={buttonText}
-      children={
+      buttonText={isButtonProgress ? "Сохранение..." : "Сохранить"}
+      onSubmit={handleSubmit}
+    >
         <>
           <div className="popup__input-field">
             <input
@@ -68,8 +70,7 @@ function EditProfilePopup({isOpen, onClose}) {
             <span id="input-occupation-error" className="popup__input-error" />
           </div>
         </>
-      }
-    ></PopupWithForm>
+    </PopupWithForm>
   );
 }
 
