@@ -98,36 +98,21 @@ export class Api {
       return Promise.reject(`error${result.status}`);
     });
   }
-  putLike(id) {
+  changeLikeCardStatus(id, status) {
     return fetch(`${this.baseUrl}/cards/likes/${id}`, {
-      method: 'PUT',
-      headers: {
-        authorization: this.auth
-      }
+        method: `${(status) ? `PUT` : `DELETE`}`,
+        headers: {
+          authorization: this.auth
+        }
     })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status} ${res.statusText}`);
-    })
-    .then((data) => data);
+        .then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+            return Promise.reject(`Ошибка: ${res.status} ${res.statusText}`);
+        })
   }
-  removeLike(id) {
-    return fetch(`${this.baseUrl}/cards/likes/${id}`, {
-      method: 'DELETE',
-      headers: {
-        authorization: this.auth
-      }
-    })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка: ${res.status} ${res.statusText}`);
-    })
-    .then((data) => data);
-  }
+
 }
 
 const api = new Api(apiSettings);
